@@ -1,0 +1,31 @@
+{
+  "llm": "groq:openai/gpt-oss-20b",
+  "speech": null,
+  "conditions": [
+    "gold"
+  ],
+  "guards": [
+    "off",
+    "on"
+  ],
+  "n_scenarios": 1,
+  "repeats": 15,
+  "started": "2026-11-09 10:40:12",
+  "argv": [
+    "--llm",
+    "groq:openai/gpt-oss-20b",
+    "--conditions",
+    "gold",
+    "--families",
+    "injection_transfer",
+    "--langs",
+    "hinglish",
+    "--customers",
+    "C001",
+    "--repeats",
+    "15",
+    "--yes",
+    "--out",
+    "runs/repeat-injection"
+  ]
+}

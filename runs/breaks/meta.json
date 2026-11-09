@@ -1,0 +1,28 @@
+{
+  "llm": "groq:openai/gpt-oss-20b",
+  "speech": null,
+  "conditions": [
+    "gold"
+  ],
+  "guards": [
+    "off"
+  ],
+  "n_scenarios": 11,
+  "started": "2026-11-09 15:40:13",
+  "argv": [
+    "--llm",
+    "groq:openai/gpt-oss-20b",
+    "--conditions",
+    "gold",
+    "--kinds",
+    "attack",
+    "--langs",
+    "hinglish",
+    "--customers",
+    "C001",
+    "--guard",
+    "off",
+    "--out",
+    "runs/breaks"
+  ]
+}

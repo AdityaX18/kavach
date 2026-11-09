@@ -1,0 +1,8 @@
+gnani-vachana>=0.9
+openai>=1.40
+numpy>=1.26
+scipy>=1.11
+soundfile>=0.12
+python-dotenv>=1.0
+gradio>=5.0,<6.0
+pytest>=8.0

@@ -1,0 +1,29 @@
+{
+  "llm": "groq:openai/gpt-oss-20b",
+  "speech": "gnani",
+  "conditions": [
+    "gold",
+    "phone_noisy"
+  ],
+  "guards": [
+    "off",
+    "on"
+  ],
+  "n_scenarios": 3,
+  "started": "2026-11-09 10:30:30",
+  "argv": [
+    "--llm",
+    "groq:openai/gpt-oss-20b",
+    "--conditions",
+    "gold,phone_noisy",
+    "--families",
+    "hero_digital_arrest,injection_transfer,injection_system",
+    "--langs",
+    "hinglish",
+    "--customers",
+    "C001",
+    "--yes",
+    "--out",
+    "runs/demo-check"
+  ]
+}

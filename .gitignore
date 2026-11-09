@@ -1,0 +1,13 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+.cache/
+# benchmark runs ARE the evidence: commit them (logs and scratch excluded)
+runs/*.log
+runs/x.txt
+.pytest_cache/
+.DS_Store
+runs/public/
+video/
+kavach_src.tgz

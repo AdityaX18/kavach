@@ -1,0 +1,28 @@
+{
+  "llm": "groq:openai/gpt-oss-20b",
+  "speech": "gnani",
+  "conditions": [
+    "phone_noisy"
+  ],
+  "guards": [
+    "off",
+    "on"
+  ],
+  "n_scenarios": 1,
+  "started": "2026-11-09 15:46:52",
+  "argv": [
+    "--llm",
+    "groq:openai/gpt-oss-20b",
+    "--conditions",
+    "phone_noisy",
+    "--families",
+    "hero_digital_arrest",
+    "--langs",
+    "hinglish",
+    "--customers",
+    "C001",
+    "--yes",
+    "--out",
+    "runs/hero-audio"
+  ]
+}

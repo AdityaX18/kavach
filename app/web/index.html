@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kavach · live call test</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#f4f1ea; --card:#fffdf8; --ink:#17161a; --muted:#6b6760; --line:#ddd7cb;
+  --red:#c2361f; --red-bg:#fbe9e4; --green:#0e6b52; --green-bg:#e3f2ec; --amber:#a35f00; --amber-bg:#fbf0dc;
+  --sans:"Instrument Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.45}
+.wrap{max-width:1180px;margin:0 auto;padding:22px 24px 40px}
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding-bottom:12px}
+.brand{display:flex;align-items:baseline;gap:12px}
+.brand h1{margin:0;font-size:30px;letter-spacing:-.02em;font-weight:700}
+.brand .tag{font-family:var(--mono);font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.seg{display:inline-flex;border:1.5px solid var(--ink);border-radius:8px;overflow:hidden}
+.seg button{all:unset;cursor:pointer;padding:6px 11px;font-size:13px;font-weight:600}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--paper)}
+select{font:inherit;font-size:13px;font-weight:600;padding:6px 8px;border:1.5px solid var(--ink);border-radius:8px;background:var(--card)}
+label.tg{display:inline-flex;gap:6px;align-items:center;font-size:13px;font-weight:600;cursor:pointer}
+.note{font-size:13px;color:var(--muted);margin:10px 0 0}
+.caller{margin-top:18px;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;background:var(--card);border:1.5px solid var(--ink);border-radius:12px;padding:12px}
+.mic{all:unset;cursor:pointer;width:58px;height:58px;border-radius:50%;background:var(--ink);color:var(--paper);display:grid;place-items:center;position:relative}
+.mic svg{width:24px;height:24px}
+.mic.rec{background:var(--red);animation:pulse 1.2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(194,54,31,.45)}70%{box-shadow:0 0 0 14px rgba(194,54,31,0)}100%{box-shadow:0 0 0 0 rgba(194,54,31,0)}}
+.caller textarea{font:inherit;font-size:15px;border:none;outline:none;resize:none;background:transparent;width:100%;min-height:44px}
+.send{all:unset;cursor:pointer;background:var(--ink);color:var(--paper);font-weight:700;padding:12px 18px;border-radius:9px}
+.send[disabled],.mic[disabled]{opacity:.4;cursor:wait}
+.sub{display:flex;justify-content:space-between;gap:12px;margin-top:8px;font-size:13px;color:var(--muted);flex-wrap:wrap}
+.meter{height:6px;width:120px;background:var(--line);border-radius:3px;overflow:hidden;display:inline-block;vertical-align:middle}
+.meter i{display:block;height:100%;width:0;background:var(--red)}
+.heard{margin-top:14px;padding:10px 14px;border-left:4px solid var(--ink);background:var(--card);font-size:16px;min-height:44px}
+.heard small{display:block;font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.lanes{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.lane{background:var(--card);border:1.5px solid var(--line);border-radius:12px;display:flex;flex-direction:column;min-height:440px}
+.lane h2{margin:0;padding:12px 14px;font-size:14px;letter-spacing:.06em;text-transform:uppercase;border-bottom:1.5px solid var(--line);display:flex;justify-content:space-between}
+.lane.off h2{color:var(--red)} .lane.on h2{color:var(--green)}
+.lane h2 span{font-family:var(--mono);font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted)}
+.verdict{margin:12px 14px 0;padding:12px 14px;border-radius:9px;font-size:20px;font-weight:700;letter-spacing:-.01em}
+.verdict.bad{background:var(--red-bg);color:var(--red)} .verdict.good{background:var(--green-bg);color:var(--green)}
+.verdict.idle{background:#efebe2;color:var(--muted);font-size:15px;font-weight:600}
+.chat{padding:12px 14px;display:flex;flex-direction:column;gap:8px;flex:1;overflow:auto;max-height:260px}
+.msg{max-width:88%;padding:8px 11px;border-radius:10px;font-size:14px}
+.msg.u{align-self:flex-end;background:#ebe6db}
+.msg.a{align-self:flex-start;background:#f4f1ea;border:1px solid var(--line)}
+.lane.on .msg.a{border-color:#b9dccd}
+.decisions{padding:0 14px 6px;display:flex;flex-direction:column;gap:6px}
+.dec{font-family:var(--mono);font-size:12.5px;display:flex;gap:8px;align-items:flex-start}
+.pill{font-family:var(--sans);font-weight:700;font-size:11px;padding:2px 7px;border-radius:5px;white-space:nowrap}
+.pill.block{background:var(--red);color:#fff} .pill.allow{background:var(--green);color:#fff} .pill.confirm{background:var(--amber);color:#fff}
+.pill.flag{background:var(--ink);color:#fff}
+.ledger{margin-top:auto;border-top:1.5px dashed var(--line);padding:10px 14px 12px;font-size:13.5px}
+.ledger b{font-family:var(--mono)}
+.ledger .row{display:flex;justify-content:space-between;gap:8px}
+.ledger .bad{color:var(--red);font-weight:700} .ledger .ok{color:var(--green);font-weight:600}
+.ledger .title{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:4px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:9px;font-size:14px;display:none;max-width:90vw}
+footer{margin-top:18px;font-size:12px;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.busy{font-family:var(--mono);font-size:12px;color:var(--amber)}
+@media (max-width:820px){.lanes{grid-template-columns:1fr}.caller{grid-template-columns:auto 1fr}.send{grid-column:1/-1;text-align:center}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><h1>Kavach</h1><span class="tag">live call test · fictional bank</span></div>
+    <div class="controls">
+      <select id="lang" aria-label="Language">
+        <option value="hinglish">Hinglish</option><option value="hi">Hindi</option>
+        <option value="kn">Kannada</option><option value="en">English</option>
+      </select>
+      <div class="seg" id="brain" role="group" aria-label="AI brain">
+        <button data-v="real" aria-pressed="true">Real AI</button>
+        <button data-v="worst" aria-pressed="false">Obeys the scammer</button>
+      </div>
+      <label class="tg"><input type="checkbox" id="phone" checked> Phone line</label>
+      <label class="tg"><input type="checkbox" id="speak" checked> Voice typed lines</label>
+      <button class="seg" style="all:unset;cursor:pointer;font-size:13px;font-weight:700;border:1.5px solid var(--ink);border-radius:8px;padding:6px 11px" id="newcall">New call</button>
+    </div>
+  </header>
+  <p class="note" id="who">Caller: Ramesh Gowda · saved payees Suresh, Lakshmi. Same caller, two agents. Left has no guard. Right has Kavach.</p>
+
+  <div class="caller">
+    <button class="mic" id="mic" title="Click to talk, click again to send">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+    </button>
+    <textarea id="text" placeholder="Type what the caller says, or click the mic and speak…"></textarea>
+    <button class="send" id="send">Send</button>
+  </div>
+  <div class="sub"><span id="micstate">Mic: click to start, click again to stop and send. <span class="meter"><i id="lvl"></i></span></span><span id="status"></span></div>
+
+  <div class="heard" id="heard"><small>What the agents heard</small><span id="heardtxt">Nothing yet.</span></div>
+
+  <div class="lanes">
+    <section class="lane off">
+      <h2>No guard <span>policy only in the prompt</span></h2>
+      <div class="verdict idle" id="v-off">Waiting for the caller</div>
+      <div class="chat" id="c-off"></div>
+      <div class="decisions" id="d-off"></div>
+      <div class="ledger" id="l-off"></div>
+    </section>
+    <section class="lane on">
+      <h2>With Kavach <span id="gms">deterministic guard</span></h2>
+      <div class="verdict idle" id="v-on">Waiting for the caller</div>
+      <div class="chat" id="c-on"></div>
+      <div class="decisions" id="d-on"></div>
+      <div class="ledger" id="l-on"></div>
+    </section>
+  </div>
+  <footer><span>Speech: Gnani AI Prisma (speech-to-text) + Timbre (voice). Synthetic data only. Don't type real personal details.</span><span id="lat"></span></footer>
+</div>
+<div class="toast" id="toast"></div>
+<audio id="player"></audio>
+
+<script>
+const $ = id => document.getElementById(id);
+const sid = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2));
+let busy = false, brain = "real";
+
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.style.display="block"; clearTimeout(t._h); t._h=setTimeout(()=>t.style.display="none",5000); }
+function esc(s){ return String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+const inr = n => "₹" + Number(n).toLocaleString("en-IN",{maximumFractionDigits:0});
+
+function setBusy(b, label){ busy=b; $("send").disabled=b; $("mic").disabled=b; $("status").innerHTML = b ? `<span class="busy">${esc(label||"Working…")}</span>` : ""; }
+
+function ledger(el, L){
+  if(!L){ el.innerHTML=""; return; }
+  const rows = [`<div class="title">Bank ledger</div>`,
+    `<div class="row"><span>Balance</span><b>${inr(L.balance)}</b></div>`,
+    `<div class="row"><span>Card ••${esc(L.card.last4)}</span><span class="${L.card.status==='blocked'?'ok':''}">${esc(L.card.status)}</span></div>`];
+  if(!L.transfers.length) rows.push(`<div class="row"><span>Money moved</span><span class="ok">none</span></div>`);
+  for(const t of L.transfers){
+    rows.push(t.saved_payee
+      ? `<div class="row"><span>${inr(t.amount)} to ${esc(t.to)}</span><span class="ok">saved payee</span></div>`
+      : `<div class="row bad"><span>${inr(t.amount)} to ${esc(t.to)}</span><span>STRANGER</span></div>`);
+  }
+  if(L.mobile_changed) rows.push(`<div class="row bad"><span>Registered mobile changed</span><span>${esc(L.mobile_changed)}</span></div>`);
+  el.innerHTML = rows.join("");
+}
+
+function verdict(el, L){
+  if(!L){ el.className="verdict idle"; el.textContent="Not run in this mode"; return; }
+  const lost = L.ledger.transfers.filter(t=>!t.saved_payee).reduce((a,t)=>a+t.amount,0);
+  const bad = lost>0 || L.ledger.mobile_changed;
+  el.className = "verdict " + (bad ? "bad" : "good");
+  el.textContent = lost>0 ? `${inr(lost)} sent to a stranger` : L.ledger.mobile_changed ? "Account taken over: mobile changed" : "₹0 to strangers";
+}
+
+function decisions(el, L, guarded){
+  if(!L){ el.innerHTML=""; return; }
+  const out = [];
+  if(guarded) for(const f of (L.findings||[])){
+    if(["authority_claim","injection","coercion","staff_claim","SCAM_PRESSURE","INJECTION","ASKS_SECRET","LEAK_UNVERIFIED","MASKED_NUMBER","secret_redacted"].includes(f.kind))
+      out.push(`<div class="dec"><span class="pill flag">${esc(f.kind)}</span><span>${esc(f.detail).slice(0,80)}</span></div>`);
+  }
+  for(const t of L.tools){
+    const a = guarded ? t.action : "allow";
+    const lbl = {allow: guarded?"ALLOWED":"DONE", block:"BLOCKED", confirm:"READ-BACK"}[a];
+    const args = Object.entries(t.args||{}).map(([k,v])=>`${k}=${v}`).join(", ");
+    out.push(`<div class="dec"><span class="pill ${a}">${lbl}</span><span>${esc(t.name)}(${esc(args)})${t.rules&&t.rules.length&&guarded?" · "+esc(t.rules.join(", ")):""}</span></div>`);
+  }
+  el.innerHTML = out.join("");
+}
+
+function addMsg(el, who, text){ const d=document.createElement("div"); d.className="msg "+who; d.textContent=text; el.appendChild(d); el.scrollTop=el.scrollHeight; }
+
+async function post(url, body){
+  const ctrl = new AbortController(); const tm = setTimeout(()=>ctrl.abort(), 90000);
+  try{
+    const r = await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body),signal:ctrl.signal});
+    const j = await r.json().catch(()=>({error:"Bad response from server"}));
+    return j;
+  } catch(e){ return {error: e.name==="AbortError" ? "Timed out after 90 s. Try again." : "Server not reachable: is python -m app.web running?"}; }
+  finally{ clearTimeout(tm); }
+}
+
+function base(){ return {sid, lang:$("lang").value, brain, customer:"C001"}; }
+
+async function newCall(){
+  if(busy) return;
+  const j = await post("/api/reset", base());
+  if(j.error){ toast(j.error); return; }
+  for(const k of ["off","on"]){ $("c-"+k).innerHTML=""; $("d-"+k).innerHTML=""; $("v-"+k).className="verdict idle"; $("v-"+k).textContent="Waiting for the caller"; }
+  ledger($("l-off"), j.ledger_off); ledger($("l-on"), j.ledger_on);
+  $("heardtxt").textContent="Nothing yet."; $("lat").textContent="";
+  $("who").textContent = `Caller: ${j.caller} (${j.phone}) · saved payees ${j.payees.join(", ")}. Same caller, two agents. Left has no guard. Right has Kavach.` + (j.voice?"":" Voice is off: no Gnani key.");
+}
+
+async function send(audio_b64){
+  if(busy) return;
+  const text = $("text").value.trim();
+  if(!audio_b64 && !text){ toast("Type a line or use the mic."); return; }
+  setBusy(true, audio_b64 ? "Prisma is listening…" : ($("speak").checked ? "Timbre → phone line → Prisma…" : "Thinking…"));
+  const j = await post("/api/turn", {...base(), mode:"both", phone:$("phone").checked, speak:$("speak").checked, text: audio_b64?"":text, audio_b64: audio_b64||""});
+  setBusy(false);
+  if(j.error){ toast(j.error); return; }
+  $("text").value="";
+  $("heardtxt").innerHTML = `<small>${esc(j.source)}</small>${esc(j.heard)}`;
+  for(const k of ["off","on"]){
+    const L = j[k]; if(!L) continue;
+    addMsg($("c-"+k),"u",j.heard); addMsg($("c-"+k),"a",L.reply);
+    verdict($("v-"+k), L); decisions($("d-"+k), L, k==="on"); ledger($("l-"+k), L.ledger);
+  }
+  if(j.on) $("gms").textContent = `guard ${j.on.guard_ms} ms`;
+  $("lat").textContent = Object.entries(j.timings||{}).map(([k,v])=>`${k} ${v} ms`).join(" · ");
+  if(j.audio){ const p=$("player"); p.src=j.audio; p.play().catch(()=>{}); }
+}
+
+/* ---------- mic: Web Audio -> 16 kHz mono WAV, no external widget ---------- */
+let rec = null;
+async function startRec(){
+  let stream;
+  try{ stream = await navigator.mediaDevices.getUserMedia({audio:{channelCount:1,echoCancellation:true,noiseSuppression:true}}); }
+  catch(e){ toast("Microphone blocked. Allow it in the address bar (🔒 → Microphone → Allow), then reload."); return; }
+  const ctx = new (window.AudioContext||window.webkitAudioContext)();
+  await ctx.resume();
+  const src = ctx.createMediaStreamSource(stream);
+  const proc = ctx.createScriptProcessor(4096,1,1);
+  const chunks = [];
+  proc.onaudioprocess = e => {
+    const d = e.inputBuffer.getChannelData(0); chunks.push(new Float32Array(d));
+    let m=0; for(let i=0;i<d.length;i+=64) m=Math.max(m,Math.abs(d[i])); $("lvl").style.width=Math.min(100,m*140)+"%";
+  };
+  src.connect(proc); proc.connect(ctx.destination);
+  rec = {stream, ctx, src, proc, chunks, t0: performance.now()};
+  $("mic").classList.add("rec");
+  rec.timer = setInterval(()=>{ $("micstate").firstChild.textContent = `Recording ${((performance.now()-rec.t0)/1000).toFixed(1)} s · click the mic again to send `; }, 100);
+}
+function encodeWav(chunks, inRate){
+  let len=0; for(const c of chunks) len+=c.length;
+  const all = new Float32Array(len); let o=0; for(const c of chunks){ all.set(c,o); o+=c.length; }
+  const outRate=16000, ratio=inRate/outRate, n=Math.floor(all.length/ratio);
+  const pcm = new Int16Array(n);
+  for(let i=0;i<n;i++){ const s=Math.floor(i*ratio), e=Math.min(all.length,Math.floor((i+1)*ratio)); let a=0; for(let j=s;j<e;j++) a+=all[j]; const v=Math.max(-1,Math.min(1,a/Math.max(1,e-s))); pcm[i]=v<0?v*0x8000:v*0x7fff; }
+  const buf=new ArrayBuffer(44+pcm.length*2), dv=new DataView(buf);
+  const W=(p,s)=>{for(let i=0;i<s.length;i++) dv.setUint8(p+i,s.charCodeAt(i));};
+  W(0,"RIFF"); dv.setUint32(4,36+pcm.length*2,true); W(8,"WAVE"); W(12,"fmt "); dv.setUint32(16,16,true); dv.setUint16(20,1,true); dv.setUint16(22,1,true);
+  dv.setUint32(24,outRate,true); dv.setUint32(28,outRate*2,true); dv.setUint16(32,2,true); dv.setUint16(34,16,true); W(36,"data"); dv.setUint32(40,pcm.length*2,true);
+  new Int16Array(buf,44).set(pcm);
+  return {wav:new Uint8Array(buf), seconds:n/outRate};
+}
+async function stopRec(){
+  const r = rec; rec = null; clearInterval(r.timer);
+  r.proc.disconnect(); r.src.disconnect(); r.stream.getTracks().forEach(t=>t.stop());
+  const rate = r.ctx.sampleRate; await r.ctx.close();
+  $("mic").classList.remove("rec"); $("lvl").style.width="0";
+  $("micstate").firstChild.textContent = "Mic: click to start, click again to stop and send. ";
+  const {wav, seconds} = encodeWav(r.chunks, rate);
+  if(seconds < 0.6){ toast("That was too short. Hold it for a sentence."); return; }
+  let bin=""; for(let i=0;i<wav.length;i+=0x8000) bin+=String.fromCharCode.apply(null, wav.subarray(i,i+0x8000));
+  send(btoa(bin));
+}
+
+$("mic").onclick = () => { if(busy) return; rec ? stopRec() : startRec(); };
+$("send").onclick = () => send();
+$("text").addEventListener("keydown", e => { if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); send(); }});
+$("newcall").onclick = newCall;
+$("lang").onchange = newCall;
+document.querySelectorAll("#brain button").forEach(b => b.onclick = () => {
+  brain = b.dataset.v; document.querySelectorAll("#brain button").forEach(x=>x.setAttribute("aria-pressed", x===b)); newCall();
+});
+newCall();
+</script>
+</body>
+</html>
